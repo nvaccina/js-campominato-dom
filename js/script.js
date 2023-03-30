@@ -16,7 +16,7 @@ playBtn.addEventListener('click', play);
 //play
 function play() {
   console.log('PLAY');
-  
+  reset();
 
   const boxNumbers = gridLevels[levelSelect.value];
 
@@ -48,7 +48,7 @@ function generatePlayGround(boxNumbers){
   container.append(grid);  
 }
 
-//GENERA BOMBE
+//genero le bome
 function generateBombs(boxNumbers) {
   //
   const bombs = [];
@@ -59,7 +59,7 @@ function generateBombs(boxNumbers) {
   return bombs;
 }
 
-//genera numeri random per bomba
+//genero numeri random per bombe
 function getRandomNumber(min, max){
   let error = false;
   let errorMsg;
@@ -72,4 +72,64 @@ function getRandomNumber(min, max){
     return;
   }
   return Math.floor(Math.random()*(max - min + 1) + min);
+}
+
+//show bombs
+function showBombs() {
+  const boxs = document.getElementsByClassName('box');
+  for(let i = 0; i < boxs.length; i++){
+    const box = boxs[i];
+
+    if(bombs.includes(box.boxId)){
+      console.log('sono una bomba', box.boxId);
+      box.classList.add('bomb');
+    }
+  }
+}
+
+//click dei box
+function adleClickBox() {
+
+  if(bombs.includes(this.boxId)){
+    endGame(false);
+  }else{
+    points++;
+    this.removeEventListener('click', adleClickBox);
+
+    const boxs = document.getElementsByClassName('box');
+    if(points === boxs.length - NUM_BOMBS){
+      endGame(true);
+    }
+  }
+  this.classList.add('clicked');
+}
+
+//fine gioco come vincitore e perdente
+function endGame(isWin) {
+
+  showBombs()
+
+  const endGame = document.createElement('div');
+  endGame.className = 'end-game';
+  container.append(endGame);
+  console.log('FINE');
+  
+  const boxs = document.getElementsByClassName('box');
+  let endMessageStr = '';
+
+  if(isWin){
+    endMessageStr = `HAI VINTO!!! Hai fatto ${points} punti su ${boxs.length - NUM_BOMBS}!`;
+  }else{
+    endMessageStr = `HAI PERSO!!! Hai fatto solo ${points} punti su ${boxs.length - NUM_BOMBS}!`;
+  }
+  document.querySelector('.endMessage').innerHTML = endMessageStr;
+}
+
+//reset di tutte le impostazioni per iniziare una nuova partita
+function reset() {
+  console.log('RESET');
+  container.innerHTML = '';
+  points = 0;
+  bombs = [];
+  document.querySelector('.endMessage').innerHTML = '';
 }
